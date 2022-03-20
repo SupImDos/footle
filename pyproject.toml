@@ -24,8 +24,6 @@ test = "pytest tests --cov=footle"
 type = "mypy tests footle"
 lint = "pylint tests footle"
 clean = "rm -rf **/.coverage **/.mypy_cache **/.pytest_cache **/__pycache__"
-build = "poetry build"
-publish = "poetry publish"
 
 [tool.pytest.ini_options]
 addopts = "--verbose"
