@@ -7,6 +7,7 @@ import pywebio
 # Local
 from footle import controllers
 from footle import settings
+from . import utils
 
 
 class Server:
@@ -27,7 +28,7 @@ class Server:
         title="Footle",
         description="Wordle for AFL Players",
         theme="sketchy",
-        css_style=r".footer {display: none;}",  # Remove Footer
+        css_style=r".footer {display: none;}",  # Hide Footer
     )
     def run(cls) -> None:
         """Runs the Footle Server for a Session"""
@@ -40,7 +41,7 @@ class Server:
             # Footle
             Wordle for AFL Players
             """
-        ).style("text-align:center")
+        ).style("text-align:center;")
 
         # Loop
         while game.turn < settings.SETTINGS.GAME_MAX_ATTEMPTS:
@@ -68,35 +69,21 @@ class Server:
             # Check
             result = game.check(player)
 
-            # Test
-            success = pywebio.output.put_success
-            close = pywebio.output.put_warning
-            fail = pywebio.output.put_error
-            name_func = success if (result.first_name and result.last_name) else fail
-            team_func = success if result.team else fail
-            pos_func = success if result.position else fail
-            height_func = success if result.height_cm == 0 else close if abs(result.height_cm) <= 10 else fail
-            height_sign = " ↓" if result.height_cm < 0 else " ↑" if result.height_cm > 0 else ""
-            weight_func = success if result.weight_kg == 0 else close if abs(result.weight_kg) <= 10 else fail
-            weight_sign = " ↓" if result.weight_kg < 0 else " ↑" if result.weight_kg > 0 else ""
-            number_func = success if result.number == 0 else close if abs(result.number) <= 10 else fail
-            number_sign = " ↓" if result.number < 0 else " ↑" if result.number > 0 else ""
-
-            # Transform Result
+            # Create Row
             content = [
-                name_func(player.name()),
-                team_func(player.team.abbreviation),
-                pos_func(player.position.pretty_name()),
-                height_func(f"{player.height_cm}cm" + height_sign),
-                weight_func(f"{player.weight_kg}kg" + weight_sign),
-                number_func(f"{player.number}" + number_sign),
+                utils.cell(text=player.name(), match=result.name()),
+                utils.cell(text=player.team.abbreviation, match=result.team),
+                utils.cell(text=player.position.pretty_name(), match=result.position),
+                utils.cell(text=f"{player.height_cm}cm", match=result.height_cm),
+                utils.cell(text=f"{player.weight_kg}kg", match=result.weight_kg),
+                utils.cell(text=f"#{player.number}", match=result.number),
             ]
 
-            # Draw Grid
+            # Draw Row
             pywebio.output.put_row(
                 content=content,
-                size=r"60fr 20fr 40fr 25fr 25fr 20fr",
-            ).style("text-align: center; grid-template-rows: 65px; grid-gap: 5px")
+                size="60fr 20fr 40fr 25fr 25fr 20fr",
+            ).style("text-align: center; grid-gap: 5px;")
 
             # Check Win
             if player == game.answer:
@@ -106,7 +93,7 @@ class Server:
                 ).style("text-align:center")
                 return
 
-        # Winner!
+        # Loser!
         pywebio.output.put_markdown(
             f"You Lose! It was **{game.answer.name()}**"
         ).style("text-align:center")

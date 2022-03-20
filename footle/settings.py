@@ -18,6 +18,7 @@ class Settings(pydantic.BaseSettings):
 
     # Game Settings
     GAME_MAX_ATTEMPTS: int = 10
+    GAME_GUESS_CLOSE: float = 10.0
 
 
 # Instantiate Settings
