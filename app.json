@@ -1,27 +1,24 @@
 {
-  "addons": [
-
-  ],
-  "buildpacks": [
-    {
-      "url": "heroku/python"
+    "addons": [],
+    "buildpacks": [
+        {
+            "url": "heroku/python"
+        },
+        {
+            "url": "https://github.com/moneymeets/python-poetry-buildpack.git"
+        }
+    ],
+    "description": "Wordle for AFL Players",
+    "env": {
+        "POETRY_VERSION": "1.1.13",
+        "PYTHON_RUNTIME_VERSION": "3.10.3"
     },
-    {
-      "url": "https://github.com/moneymeets/python-poetry-buildpack.git"
-    }
-  ],
-  "description": "Wordle for AFL Players",
-  "env": {
-    "POETRY_VERSION": "1.1.13",
-    "PYTHON_RUNTIME_VERSION": "3.10.3"
-  },
-  "formation": {
-    "web": {
-      "quantity": 1
-    }
-  },
-  "name": "footle",
-  "scripts": {
-  },
-  "stack": "heroku-20"
+    "formation": {
+        "web": {
+            "quantity": 1
+        }
+    },
+    "name": "footle",
+    "scripts": {},
+    "stack": "heroku-20"
 }
