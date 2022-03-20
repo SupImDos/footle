@@ -48,7 +48,7 @@ class Server:
             name = pywebio.input.input(
                 datalist=controllers.Game.NAMES,
                 type=pywebio.input.TEXT,
-                autocomplete="new-password",  # Hack to stop user autocomplete
+                autocomplete="off",
                 placeholder=f"Guess {game.turn + 1} of {settings.SETTINGS.GAME_MAX_ATTEMPTS}",
                 required=True,
             )
