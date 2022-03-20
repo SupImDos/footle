@@ -26,6 +26,8 @@ class Server:
     @pywebio.config(
         title="Footle",
         description="Wordle for AFL Players",
+        theme="sketchy",
+        css_style=r".footer {display: none;}",  # Remove Footer
     )
     def run(cls) -> None:
         """Runs the Footle Server for a Session"""
@@ -93,7 +95,7 @@ class Server:
             # Draw Grid
             pywebio.output.put_row(
                 content=content,
-                size=r"120fr 40fr 80fr 50fr 50fr 35fr",
+                size=r"60fr 20fr 40fr 25fr 25fr 20fr",
             ).style("text-align: center; grid-template-rows: 65px; grid-gap: 5px")
 
             # Check Win
