@@ -7,9 +7,8 @@ from . import views
 
 def main() -> None:
     """Main Function"""
-    # Create and Run Server
-    server = views.Server()
-    server.start()
+    # Start Server
+    views.Server.start()
 
 
 if __name__ == "__main__":
