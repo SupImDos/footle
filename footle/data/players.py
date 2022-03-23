@@ -18,10 +18,10 @@ from . import teams
 
 @functools.lru_cache()
 def all_players() -> dict[str, models.Player]:
-    """Retrieves a dictionary of *all* AFL Players
+    """Retrieves a dictionary of all current AFL Players
 
     Returns:
-        dict[str, models.Player]: Dictionary of *all* AFL players
+        dict[str, models.Player]: Dictionary of all current AFL players
     """
     # Players
     players: dict[str, models.Player] = {}
@@ -42,7 +42,7 @@ def all_players() -> dict[str, models.Player]:
         # Deserialize Raw Data
         data = response.json()
 
-        # Loop through
+        # Loop
         for raw in data["squad"]["players"]:
             # Catch Errors
             try:

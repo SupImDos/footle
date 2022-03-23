@@ -25,5 +25,8 @@ def season_id() -> int:
             timeout=settings.SETTINGS.API_TIMEOUT_S,
         )
 
-    # Find Current Competition Season ID
-    return response.json()["compSeasons"][0]["id"]
+    # Deserialize Raw Data
+    data = response.json()
+
+    # Return Current Competition Season ID
+    return data["compSeasons"][0]["id"]

@@ -15,10 +15,10 @@ from . import competitions
 
 @functools.lru_cache()
 def all_teams() -> dict[str, models.Team]:
-    """Retrieves AFL teams from the AFL API
+    """Retrieves a dictionary of all current AFL Teams
 
     Returns:
-        dict[str, models.Team]: Dictionary of AFL teams
+        dict[str, models.Team]: Dictionary of all AFL Teams
     """
     # Teams List
     teams: dict[str, models.Team] = {}
@@ -33,7 +33,7 @@ def all_teams() -> dict[str, models.Team]:
             timeout=settings.SETTINGS.API_TIMEOUT_S,
         )
 
-    # Loop through raw data
+    # Loop
     for raw in response.json()["teams"]:
         # Create Team
         team = models.Team(
@@ -43,7 +43,7 @@ def all_teams() -> dict[str, models.Team]:
             nickname=raw["nickname"],
         )
 
-        # Append
+        # Add Team
         teams[team.abbreviation] = team
 
     # Return

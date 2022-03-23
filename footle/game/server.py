@@ -5,9 +5,10 @@
 import pywebio
 
 # Local
-from footle import controllers
+from footle import data
 from footle import models
 from footle import settings
+from . import logic
 from . import utils
 
 # Typing
@@ -62,7 +63,7 @@ class Server:
     def __init__(self) -> None:
         """Instantiates the Server"""
         # Create Game
-        self.game = controllers.Game()
+        self.game = logic.Game()
 
         # Draw Title
         self.title()
@@ -91,10 +92,10 @@ class Server:
             inputs=[
                 pywebio.input.input(
                     name=Server.DATA,
-                    datalist=self.game.NAMES,
+                    datalist=sorted(data.all_players()),
                     type=pywebio.input.TEXT,
                     autocomplete="off",
-                    placeholder=f"Guess {self.game.turn} of {self.game.MAX_ATTEMPTS}",
+                    placeholder=f"Guess {self.game.turn} of {settings.SETTINGS.GAME_MAX_ATTEMPTS}",
                     required=False,
                 ),
                 pywebio.input.actions(
@@ -123,11 +124,11 @@ class Server:
         # Wrap the Handle Function
         try:
             # Parse Response
-            action = response[Server.ACTION]  # pylint: disable=unsubscriptable-object
-            data = response[Server.DATA]  # pylint: disable=unsubscriptable-object
+            button = response[Server.ACTION]  # pylint: disable=unsubscriptable-object
+            value = response[Server.DATA]  # pylint: disable=unsubscriptable-object
 
             # Handle Response
-            self.handle(action, data)
+            self.handle(button, value)
 
         except ValueError as exc:
             # Error Message
@@ -142,30 +143,30 @@ class Server:
             # Finished
             return Server.GAME_FINISHED
 
-    def handle(self, action: str, data: str) -> None:
+    def handle(self, button: str, value: str) -> None:
         """_summary_
 
         Args:
-            action (str): _description_
-            data (str): _description_
+            button (str): _description_
+            value (str): _description_
         """
         # Guess
-        if action == Server.ACTION_GUESS:
+        if button == Server.ACTION_GUESS:
             # Perform a Guess
-            self.guess(data)
+            self.guess(value)
 
         # Give Up
-        if action == Server.ACTION_GIVE_UP:
+        if button == Server.ACTION_GIVE_UP:
             # Give Up
             self.give_up()
 
         # Hint
-        if action == Server.ACTION_HINT:
+        if button == Server.ACTION_HINT:
             # Draw Hint
             self.hint()
 
         # How to Play
-        if action == Server.ACTION_HOW_TO_PLAY:
+        if button == Server.ACTION_HOW_TO_PLAY:
             # Draw How to Play
             self.how_to_play()
 
@@ -219,7 +220,7 @@ class Server:
                 pywebio.output.put_text("Number").style(Server.STYLE_HEADER),
             ]
 
-            # Preprend it to the Grid
+            # Prepend it to the Grid
             content.insert(0, header)
 
         # Draw Grid
@@ -233,7 +234,7 @@ class Server:
         pywebio.session.run_js("document.forms[0].reset();")
         pywebio.session.run_js(
             "document.getElementsByClassName('form-control')[0].placeholder = placeholder",
-            placeholder=f"Guess {self.game.turn} of {self.game.MAX_ATTEMPTS}",
+            placeholder=f"Guess {self.game.turn} of {settings.SETTINGS.GAME_MAX_ATTEMPTS}",
         )
 
     def give_up(self) -> None:
@@ -247,18 +248,12 @@ class Server:
         Raises:
             ValueError: Raised if no more hints are available.
         """
-        # Receive Hint
-        # TODO -> Hint Number
-        hint_data = self.game.hint()
-
-        # Check for Hint Data
-        if not hint_data:
-            # Raise Error
-            raise ValueError("No more hints!")
+        # Generate Hint
+        number, name, value = self.game.hint()
 
         # Create Hint
         pywebio.output.put_markdown(
-            f"[Hint] {hint_data[0]}: **{hint_data[1]}**"
+            f"[Hint {number}] {name}: **{value}**"
         ).style(Server.STYLE_CENTER)
 
     def how_to_play(self) -> None:
@@ -268,7 +263,8 @@ class Server:
             title="How to Play",
             content=pywebio.output.put_markdown(
                 f"""
-                * You get {self.game.MAX_ATTEMPTS} guesses
+                * You get {settings.SETTINGS.GAME_MAX_ATTEMPTS} guesses
+                * You get {settings.SETTINGS.GAME_MAX_HINTS} random hints
                 * You can guess any currently listed AFL player
                 * The column colours indicate:
                   * <span style="color:green">GREEN</span>: You are correct

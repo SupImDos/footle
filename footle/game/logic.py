@@ -17,19 +17,23 @@ from typing import Optional  # pylint: disable=wrong-import-order
 class Game:
     """Game Class"""
 
-    # Players
-    NAMES = sorted(data.all_players())
-    PLAYERS = data.all_players()
-
-    # Game
-    MAX_ATTEMPTS = settings.SETTINGS.GAME_MAX_ATTEMPTS
+    # # Game
+    # MAX_ATTEMPTS = settings.SETTINGS.GAME_MAX_ATTEMPTS
+    # MAX_HINTS = settings.SETTINGS.GAME_MAX_HINTS
 
     def __init__(self) -> None:
         """Initialises the Game"""
         # Generate Answer
         self.answer = random.choice(list(data.all_players().values()))
         self.turn = 1
-        self.hints_left = 7
+        self.hints = 0
+        self.hint_pool = {
+            "Weight": f"{self.answer.weight_kg}kg",
+            "Height": f"{self.answer.height_cm}cm",
+            "Number": f"#{self.answer.number}",
+            "Position": self.answer.position.pretty_name(),
+            "Team": self.answer.team.abbreviation,
+        }
         self.state = models.State.PLAYING
 
     def playing(self) -> bool:
@@ -50,11 +54,8 @@ class Game:
         Returns:
             Optional[models.Player]: _description_
         """
-        # Get Player
-        possible_player = Game.PLAYERS.get(name)
-
         # Return
-        return possible_player
+        return data.all_players().get(name)
 
     def guess(self, player: models.Player) -> models.Comparison:
         """_summary_
@@ -74,62 +75,36 @@ class Game:
             self.state = models.State.WON
 
         # Check if Lost
-        if self.turn > Game.MAX_ATTEMPTS:
+        if self.turn > settings.SETTINGS.GAME_MAX_ATTEMPTS:
             # Lost!
             self.state = models.State.LOST
 
         # Guess
         return utils.compare(player, self.answer)
 
-    def hint(self) -> Optional[tuple[str, str]]:
+    def hint(self) -> tuple[int, str, str]:
         """Generates a Hint
 
         Returns:
-            Optional[tuple[str, str]]: Possible hint name and value
+            tuple[int, str, str]: Hint number, name and value
+
+        Raises:
+            ValueError: Raised if no more hints are available
         """
-        # 7 Hints Left
-        if self.hints_left == 7:
-            # Weight
-            hint_data = ("Weight", f"{self.answer.weight_kg}kg")
+        # Check for Hints
+        if self.hints >= settings.SETTINGS.GAME_MAX_HINTS:
+            # Raise Error
+            raise ValueError("No more hints left!")
 
-        # 6 Hints Left
-        elif self.hints_left == 6:
-            # Height
-            hint_data = ("Height", f"{self.answer.height_cm}cm")
+        # Increment Hints
+        self.hints += 1
 
-        # 5 Hints Left
-        elif self.hints_left == 5:
-            # Number
-            hint_data = ("Number", f"#{self.answer.number}")
-
-        # 4 Hints Left
-        elif self.hints_left == 4:
-            # Position
-            hint_data = ("Position", self.answer.position.pretty_name())
-
-        # 3 Hints Left
-        elif self.hints_left == 3:
-            # Team
-            hint_data = ("Team", self.answer.team.abbreviation)
-
-        # 2 Hints Left
-        elif self.hints_left == 2:
-            # First Name
-            hint_data = ("First Name", self.answer.first_name)
-
-        # 1 Hint Left
-        elif self.hints_left == 1:
-            # Last Name
-            hint_data = ("Last Name", self.answer.last_name)
-
-        else:
-            hint_data = None
-
-        # Decrement Hints Left
-        self.hints_left -= 1
+        # Generate Random Hint
+        key = random.choice(list(self.hint_pool.keys()))
+        value = self.hint_pool.pop(key)
 
         # Return
-        return hint_data
+        return (self.hints, key, value)
 
     def give_up(self) -> None:
         """Gives up the game"""

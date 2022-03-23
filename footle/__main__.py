@@ -2,13 +2,13 @@
 
 
 # Local
-from . import views
+from . import game
 
 
 def main() -> None:
     """Main Function"""
     # Start Server
-    views.Server.start()
+    game.Server.start()
 
 
 if __name__ == "__main__":
