@@ -17,9 +17,6 @@ from typing import Optional  # pylint: disable=wrong-import-order
 class Game:
     """Game Class"""
 
-    # Load Caches
-    PLAYERS = data.all_players()
-
     def __init__(self) -> None:
         """Initialises the Game"""
         # Generate Answer
