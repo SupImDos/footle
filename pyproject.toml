@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "footle"
-version = "0.0.2"
+version = "0.0.3"
 description = "Wordle for AFL Players"
 authors = ["Hayden Richards <SupImDos@gmail.com>"]
 readme = "README.md"
